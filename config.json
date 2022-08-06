@@ -1,0 +1,7 @@
+{
+    "netid": "jsmith",
+    "email": "a@b.c",
+    "member_id": "",
+    "auth_method": "other",
+    "_comment": "The 'auth method' value should be 'tud_sso' or 'other'."
+}
