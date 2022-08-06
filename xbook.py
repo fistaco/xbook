@@ -2,6 +2,7 @@
 import argparse
 import getpass
 import json
+import os
 import urllib3
 
 from auth import AuthMethod
@@ -33,7 +34,8 @@ def load_config():
     a `username` variable containing the `netid` or `email` according to the
     configured `auth_method`.
     """
-    with open("config.json", "r") as f:
+    config_path = f"{os.path.dirname(__file__)}/config.json"
+    with open(config_path, "r") as f:
         config = json.load(f)
 
         netid = config["netid"]
