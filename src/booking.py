@@ -35,7 +35,7 @@ def attempt_booking(slot_str, start_str, end_str, member_id, username, passw,
     prev_time = time.time()
     while True:
         t = time.time()
-        if t - prev_time > interval:
+        if t - prev_time < interval:
             continue
 
         prev_time = t  # Update time regardless of rest of loop
