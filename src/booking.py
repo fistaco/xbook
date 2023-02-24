@@ -45,10 +45,10 @@ def attempt_booking(slot_str, start_str, end_str, member_id, username, passw,
         if not slot["isAvailable"]:
             continue
 
-        (session, _, mem_id_from_auth) = auth(username, passw, auth_method)
+        (session, token, mem_id_from_auth) = auth(username, passw, auth_method)
         if mem_id_from_auth is not None:
             member_id = mem_id_from_auth
-        booked = book_slot(slot, member_id, session)
+        booked = book_slot(slot, member_id, session, token)
 
         if not booked:
             print(f"Failed to book slot at {slot_str}. Resuming attempts.")
@@ -99,7 +99,7 @@ def find_slot(time_slot_str, slots):
     exit(0)
 
 
-def book_slot(slot, member_id, session):
+def book_slot(slot, member_id, session, token=None):
     """
     Books the fitness time `slot` for the user with the given `member_id`.
 
@@ -129,7 +129,10 @@ def book_slot(slot, member_id, session):
         # "dateOfRegistration": null
     }
 
-    return session.post(url, json=payload).status_code < 300
+    session.headers["authorization"] = f"Bearer {token}"
+    r = session.post(url, json=payload)
+
+    return r.status_code < 300
 
 
 def cancel_slot(slot_id, session):
