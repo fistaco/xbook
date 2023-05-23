@@ -43,6 +43,7 @@ def attempt_booking(slot_str, start_str, end_str, member_id, username, passw,
         slots = booking_schedule(start_str, end_str)
         slot = find_slot(slot_str, slots)
         if not slot["isAvailable"]:
+            print("Slot not available at the moment, proceeding when becomes available")
             continue
 
         (session, token, mem_id_from_auth) = auth(username, passw, auth_method)
