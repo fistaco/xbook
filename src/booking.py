@@ -41,6 +41,9 @@ def attempt_booking(slot_str, start_str, end_str, member_id, username, passw,
         prev_time = t  # Update time regardless of rest of loop
 
         slots = booking_schedule(start_str, end_str)
+        if slots is None:
+            continue
+
         slot = find_slot(slot_str, slots)
         if not slot["isAvailable"]:
             continue
@@ -77,7 +80,13 @@ def booking_schedule(start_str, end_str):
           f"2availableFromDate%22:%7B%22$gt%22:%22{now_str}%22%7D,%22" + \
           f"availableTillDate%22:%7B%22$gte%22:%22{now_str}%22%7D%7D"
 
-    return json.loads(requests.get(url).text)["data"]
+    try:
+        data = json.loads(requests.get(url).text)["data"]
+    except Exception as e:
+        print(e)
+        return None
+
+    return data
 
 
 def find_slot(time_slot_str, slots):
