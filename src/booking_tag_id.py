@@ -3,7 +3,7 @@ from enum import Enum
 
 class BookingTagId(Enum):
     STRENGTH = 5
-    GYM = 22
+    GYM = 28
     BEACH_VOLLEYBALL_COURT = 88
     BODY_POWER = 121
     HALL_X1 = 147
