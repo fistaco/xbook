@@ -109,7 +109,7 @@ def other_auth(email, passw):
     s.headers["authority"] = "backbone-web-api.production.delft.delcom.nl"
 
     # Authenticated requests now allow us to obtain user information
-    user_info = json.loads(s.get(auth_url).text)
+    user_info = json.loads(s.get(f"{auth_url}?cf=0").text)
     member_id = user_info["id"] if "id" in user_info else None
 
     return (s, tokens["access_token"], member_id)
