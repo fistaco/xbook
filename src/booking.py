@@ -4,24 +4,27 @@ import requests
 import time
 
 from auth import auth, terminate_session
+from booking_tag_id import BookingTagId
 from time_slot_manip import date_and_hour_to_time_slot_str
 
 
-def login_and_book_slot(uname, passw, mem_id, auth_meth, date, hour, in_utc):
+def login_and_book_slot(uname, passw, mem_id, auth_meth, date, hour, in_utc,
+                        tag_id=BookingTagId.GYM.value):
     """
-    Authenticates to X with the given credentials and attempts to book the gym
-    time slot corresponding to the given start `hour` on the given `day`.
+    Authenticates to X with the given credentials and attempts to book a time
+    slot corresponding to the given start `hour` on the given `day` for the
+    booking category corresponding to the given `tag_id`.
     """
     day_start = date_and_hour_to_time_slot_str(date, 0, in_utc=True)
     day_end = date_and_hour_to_time_slot_str(date, 23, in_utc=True)
     slot_str = date_and_hour_to_time_slot_str(date, hour, in_utc=in_utc)
 
     attempt_booking(
-        slot_str, day_start, day_end, mem_id, uname, passw, auth_meth)
+        slot_str, day_start, day_end, mem_id, uname, passw, auth_meth, tag_id)
 
 
 def attempt_booking(slot_str, start_str, end_str, member_id, username, passw,
-                    auth_method, interval=1):
+                    auth_method, tag_id, interval=1):
     """
     Continuously checks in intervals of `interval` seconds if the time slot
     with the given `slot_str` is available and attempts to book it if it is. If
@@ -40,7 +43,7 @@ def attempt_booking(slot_str, start_str, end_str, member_id, username, passw,
 
         prev_time = t  # Update time regardless of rest of loop
 
-        slots = booking_schedule(start_str, end_str)
+        slots = booking_schedule(start_str, end_str, tag_id)
         if slots is None:
             continue
 
@@ -63,7 +66,7 @@ def attempt_booking(slot_str, start_str, end_str, member_id, username, passw,
         break
 
 
-def booking_schedule(start_str, end_str):
+def booking_schedule(start_str, end_str, tag_id=BookingTagId.GYM.value):
     """
     Obtains the list of available bookings between the given `start_str` and
     `end_str` datetimes, which should be formatted as
@@ -76,8 +79,8 @@ def booking_schedule(start_str, end_str):
     now_str = datetime.today().strftime("%Y-%m-%dT%H:%M:%S")
     url = f"https://backbone-web-api.production.delft.delcom.nl/bookable-s" + \
           f"lots?s=%7B%22startDate%22:%22{start_str}%22,%22endDate%22" + \
-          f":%22{end_str}%22,%22tagIds%22:%7B%22$in%22:%5B28%5D%7D,%2" + \
-          f"2availableFromDate%22:%7B%22$gt%22:%22{now_str}%22%7D,%22" + \
+          f":%22{end_str}%22,%22tagIds%22:%7B%22$in%22:%5B{tag_id}%5D%7D,%" + \
+          f"22availableFromDate%22:%7B%22$gt%22:%22{now_str}%22%7D,%22" + \
           f"availableTillDate%22:%7B%22$gte%22:%22{now_str}%22%7D%7D"
 
     try:
@@ -120,7 +123,7 @@ def book_slot(slot, member_id, session, token=None):
     payload = {
         # "organizationId": null,
         "memberId": member_id,
-        "bookingId": slot["bookingId"],
+        "bookingId": slot.get("bookingId"),
         # "primaryPurchaseMessage": null,
         # "secondaryPurchaseMessage": null,
         "params": {
@@ -128,7 +131,7 @@ def book_slot(slot, member_id, session, token=None):
             "endDate": slot["endDate"],
             "bookableProductId": slot["bookableProductId"],
             "bookableLinkedProductId": slot["linkedProductId"],
-            "bookingId": slot["bookingId"],
+            "bookingId": slot.get("bookingId"),
             "invitedMemberEmails": [],
             "invitedGuests": [],
             "invitedOthers": []
