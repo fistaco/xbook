@@ -122,7 +122,7 @@ def slot_is_bookable(slot, category=BookingTagId.GYM):
     to book.
     """
     # TODO: Incorporate time-to-booking eligibility check for different sports
-    seconds_until_slot = seconds_diff(datetime.now(), slot["startDate"])
+    seconds_until_slot = seconds_diff(datetime.utcnow(), slot["startDate"])
     if seconds_until_slot > 168*3600:
         print("Can only book slot 168 hours before start time. Exiting.")
         exit(1)
