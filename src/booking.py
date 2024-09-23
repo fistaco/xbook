@@ -5,7 +5,7 @@ import time
 
 from auth import auth, terminate_session
 from booking_tag_id import BookingTagId
-from time_slot_manip import date_and_hour_to_time_slot_str
+from time_slot_manip import date_and_hour_to_time_slot_str, seconds_diff
 
 
 def login_and_book_slot(uname, passw, mem_id, auth_meth, date, hour, in_utc,
@@ -47,8 +47,8 @@ def attempt_booking(slot_str, start_str, end_str, member_id, username, passw,
         if slots is None:
             continue
 
-        slot = find_slot(slot_str, slots)
-        if not slot["isAvailable"]:
+        slot = find_slot(slot_str, slots, ignore_availability=False)
+        if not slot_is_bookable(slot):
             continue
 
         (session, token, mem_id_from_auth) = auth(username, passw, auth_method)
@@ -92,9 +92,10 @@ def booking_schedule(start_str, end_str, tag_id=BookingTagId.GYM.value):
     return data
 
 
-def find_slot(time_slot_str, slots):
+def find_slot(time_slot_str, slots, ignore_availability=False):
     """
     Finds a time slot starting at the given `time_slot_str` within `slots`.
+    Can return `None` to keep on searching even when no slots are found.
 
     Arguments:
         `time_slot_str`: An X timestamp formatted as YYYY-MM-DDTHH:MM:SS.MSSZ
@@ -107,8 +108,26 @@ def find_slot(time_slot_str, slots):
         if slot["startDate"] == time_slot_str:
             return slot
 
+    if ignore_availability:
+        return None
+
     print(f"Could not find a slot starting at {time_slot_str}. Exiting.")
     exit(0)
+
+
+def slot_is_bookable(slot, category=BookingTagId.GYM):
+    """
+    Determines and returns whether a slot is bookable by checking its
+    availability and the remaining time until participants can start attempting
+    to book.
+    """
+    # TODO: Incorporate time-to-booking eligibility check for different sports
+    seconds_until_slot = seconds_diff(datetime.now(), slot["startDate"])
+    if seconds_until_slot > 168*3600:
+        print("Can only book slot 168 hours before start time. Exiting.")
+        exit(1)
+
+    return slot["isAvailable"]
 
 
 def book_slot(slot, member_id, session, token=None):

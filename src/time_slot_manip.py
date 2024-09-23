@@ -33,3 +33,13 @@ def apply_utc_diff(hour):
     that leak into the previous or next day.
     """
     return hour + (datetime.utcnow().hour - datetime.now().hour)
+
+
+def seconds_diff(start_str, end_str):
+    """
+    Computes and returns the difference in hours between the two given time
+    strings."""
+    start = start_str if isinstance(start_str, datetime) \
+        else datetime.strptime(start_str, "%Y-%m-%dT%H:%M:%S.%fZ")
+    end = datetime.strptime(end_str, "%Y-%m-%dT%H:%M:%S.%fZ")
+    return int((end - start).total_seconds())
