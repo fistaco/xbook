@@ -5,11 +5,12 @@ import time
 
 from auth import auth, terminate_session
 from booking_tag_id import BookingTagId
+from constants import HALL_PRODUCT_IDS
 from time_slot_manip import date_and_hour_to_time_slot_str, seconds_diff
 
 
 def login_and_book_slot(uname, passw, mem_id, auth_meth, date, hour, in_utc,
-                        tag_id=BookingTagId.GYM.value):
+                        tag_id=BookingTagId.GYM.value, subcategory_id=None):
     """
     Authenticates to X with the given credentials and attempts to book a time
     slot corresponding to the given start `hour` on the given `day` for the
@@ -20,11 +21,13 @@ def login_and_book_slot(uname, passw, mem_id, auth_meth, date, hour, in_utc,
     slot_str = date_and_hour_to_time_slot_str(date, hour, in_utc=in_utc)
 
     attempt_booking(
-        slot_str, day_start, day_end, mem_id, uname, passw, auth_meth, tag_id)
+        slot_str, day_start, day_end, mem_id, uname, passw, auth_meth, tag_id,
+        subcategory_id
+    )
 
 
 def attempt_booking(slot_str, start_str, end_str, member_id, username, passw,
-                    auth_method, tag_id, interval=1):
+                    auth_method, tag_id, subcategory_id=None, interval=1):
     """
     Continuously checks in intervals of `interval` seconds if the time slot
     with the given `slot_str` is available and attempts to book it if it is. If
@@ -47,7 +50,8 @@ def attempt_booking(slot_str, start_str, end_str, member_id, username, passw,
         if slots is None:
             continue
 
-        slot = find_slot(slot_str, slots, ignore_availability=False)
+        slot = find_slot(slot_str, slots, ignore_availability=False,
+                         subcategory_id=subcategory_id)
         if not slot_is_bookable(slot):
             continue
 
@@ -92,7 +96,8 @@ def booking_schedule(start_str, end_str, tag_id=BookingTagId.GYM.value):
     return data
 
 
-def find_slot(time_slot_str, slots, ignore_availability=False):
+def find_slot(time_slot_str, slots, ignore_availability=False,
+              subcategory_id=None):
     """
     Finds a time slot starting at the given `time_slot_str` within `slots`.
     Can return `None` to keep on searching even when no slots are found.
@@ -105,7 +110,7 @@ def find_slot(time_slot_str, slots, ignore_availability=False):
                  "booking", and "product".
     """
     for slot in slots:
-        if slot["startDate"] == time_slot_str:
+        if slot_match(slot, time_slot_str, subcategory_id):
             return slot
 
     if ignore_availability:
@@ -113,6 +118,15 @@ def find_slot(time_slot_str, slots, ignore_availability=False):
 
     print(f"Could not find a slot starting at {time_slot_str}. Exiting.")
     exit(0)
+
+
+def slot_match(slot, time_slot_str, subcategory_id=None):
+    """
+    Determines and returns whether the given `slot` matches the filter defined
+    by the given start time and category information.
+    """
+    return slot["startDate"] == time_slot_str and \
+        subcategory_id is None or slot["bookableProductId"] == subcategory_id
 
 
 def slot_is_bookable(slot, category=BookingTagId.GYM):
@@ -123,11 +137,9 @@ def slot_is_bookable(slot, category=BookingTagId.GYM):
     """
     # TODO: Incorporate time-to-booking eligibility check for different sports
     seconds_until_slot = seconds_diff(datetime.utcnow(), slot["startDate"])
-    if seconds_until_slot > 168*3600:
-        print("Can only book slot 168 hours before start time. Exiting.")
-        exit(1)
+    slot_within_booking_window = seconds_until_slot < 604800
 
-    return slot["isAvailable"]
+    return slot["isAvailable"] and slot_within_booking_window
 
 
 def book_slot(slot, member_id, session, token=None):

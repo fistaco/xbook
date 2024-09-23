@@ -9,6 +9,7 @@ from auth import AuthMethod
 from booking import login_and_book_slot
 from booking_tag_id import BookingTagId
 from constants import BEACH_VOLLEYBALL_COURT_PRODUCT_IDS
+from subcategory_id import SubcategoryId
 
 # The certificate for x.tudelft.nl is untrusted, which produces many warnings
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -64,10 +65,14 @@ def process_args(args):
     booking.
     """
     tag_id = BookingTagId.from_string(args.booking_category).value
-    bookable_product_id = BEACH_VOLLEYBALL_COURT_PRODUCT_IDS[args.court] \
-        if args.court else None
 
-    return (tag_id, bookable_product_id)
+    subcategory_id = None
+    if args.court:
+        subcategory_id = BEACH_VOLLEYBALL_COURT_PRODUCT_IDS[args.court]
+    if tag_id != BookingTagId.GYM.value:
+        subcategory_id = SubcategoryId.from_string(args.booking_category).value
+
+    return (tag_id, subcategory_id)
 
 
 if __name__ == "__main__":
@@ -77,9 +82,9 @@ if __name__ == "__main__":
     password = getpass.getpass("Password for X login: ") if not args.password \
         else args.password[0]
 
-    (tag_id, bookable_product_id) = process_args(args)
+    (tag_id, subcategory_id) = process_args(args)
 
     login_and_book_slot(
         username, password, member_id, auth_method, args.date, args.hour,
-        args.utc, tag_id
+        args.utc, tag_id, subcategory_id
     )

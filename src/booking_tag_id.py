@@ -14,7 +14,7 @@ class BookingTagId(Enum):
     POWER_KICK = 161
 
     def __str__(self) -> str:
-        """Represents this booking tag ID as a string by """
+        """Represents this booking tag ID as a human-readable string."""
         return self.name.replace("_", " ").capitalize()
 
     @staticmethod
