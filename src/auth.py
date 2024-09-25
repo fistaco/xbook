@@ -87,11 +87,16 @@ def tud_auth(netid, passw):
     }
     r6 = s.post(token_url, data=token_payload)
     token = r6.json()['access_token']
+    s.headers["authorization"] = f"Bearer {token}"
+    s.headers["authority"] = "backbone-web-api.production.delft.delcom.nl"
 
     # TODO: Might be able to obtain member ID from https://backbone-web-api.production.delft.delcom.nl/auth
-    r7 = s.get("https://backbone-web-api.production.delft.delcom.nl/auth")
+    r7 = s.get("https://backbone-web-api.production.delft.delcom.nl/auth?cf=0")
 
-    return (s, token, None)
+    user_info = json.loads(r7.text)
+    member_id = user_info["id"] if "id" in user_info else None
+
+    return (s, token, member_id)
 
 
 def other_auth(email, passw):
