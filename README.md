@@ -1,5 +1,5 @@
 # Xbook
-Xbook is a command line utility written in Python 3.10.2 that allows users to quickly book a desired fitness time slot without having to navigate the X webpage. Additionally, it can continually check a given time slot's availability and book it as soon as it is no longer fully booked by other participants, granting as many people as possible the opportunity to get their gains in the event of cancellations.
+Xbook is a command line utility written in Python 3 that allows users to quickly book a desired activity time slot without having to navigate the X webpage. Additionally, it can continually check a given time slot's availability and book it as soon as it is no longer fully booked by other participants, granting as many people as possible the opportunity to get their gains in the event of cancellations.
 
 # Installation
 At the time of writing, Xbook is not available on any package managers. You may therefore install it by cloning the source, installing the requirements with `pip`, and adding it to your PATH so it may be run from anywhere:
@@ -18,11 +18,11 @@ Call `xbook.py` with a given date and hour to attempt to book the corresponding 
 $ xbook.py -h
 usage: xbook [-h] [--password password] [--utc] [--booking-category BOOKING_CATEGORY] [--court {1,2,3,4}] date hour
 
-Book a fitness time slot at X.
+Book an activity time slot at X.
 
 positional arguments:
-  date                  The date on which you want to book a time slot (YYYY-MM-DD).
-  hour                  The hour at which your desired slot commences.
+  date                  The date on which you want to book a time slot. Example: 2024-01-13
+  hour                  The hour at which your desired slot commences. Example: 09
 
 options:
   -h, --help            show this help message and exit
@@ -64,7 +64,7 @@ xbook.py 2022-01-30 20 --booking-category x3b
 ```
 Continuously attempt to book beach volleyball court 1 at 19:00 on 30 July 2024:
 ```bash
-xbook.py 2024-01-30 20 --booking-category beach --court 1
+xbook.py 2024-01-30 19 --booking-category beach --court 1
 ```
 
 # Configuration

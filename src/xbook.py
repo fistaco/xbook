@@ -17,12 +17,12 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        prog="xbook", description="Book a fitness time slot at X.")
+        prog="xbook", description="Book an activity time slot at X.")
 
     parser.add_argument("date", metavar="date", type=str,
-        help="The date on which you want to book a time slot (YYYY-MM-DD).")
+        help="The date on which you want to book a time slot. Example: 2024-01-13")
     parser.add_argument("hour", metavar="hour", type=int,
-        help="The hour at which your desired slot commences.")
+        help="The hour at which your desired slot commences. Example: 09")
 
     parser.add_argument("--password", metavar="password", type=str, nargs=1,
         help="The password you use to log in to X's website.")
