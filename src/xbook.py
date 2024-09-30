@@ -56,6 +56,10 @@ def load_config():
         username = netid if auth_method == AuthMethod.TUD_SSO \
             else email
 
+        if not username:
+            print("[!] empty username configured for authentication method.")
+            exit(1)
+
     return (username, member_id, auth_method)
 
 

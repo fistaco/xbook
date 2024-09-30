@@ -32,13 +32,24 @@ def apply_utc_diff(hour):
     Note that this naive implementation does not account for hour differences
     that leak into the previous or next day.
     """
-    return hour + (datetime.utcnow().hour - datetime.now().hour)
+    return hour + int(
+        (datetime.utcnow() - datetime.now()).total_seconds()
+    ) // 3600
+
+
+def utc_seconds_difference():
+    """
+    Returns the absolute difference in seconds between the current timezone and
+    UTC.
+    """
+    return int(abs(datetime.now() - datetime.utcnow()).total_seconds())
 
 
 def seconds_diff(start_str, end_str):
     """
     Computes and returns the difference in hours between the two given time
-    strings."""
+    strings.
+    """
     start = start_str if isinstance(start_str, datetime) \
         else datetime.strptime(start_str, "%Y-%m-%dT%H:%M:%S.%fZ")
     end = datetime.strptime(end_str, "%Y-%m-%dT%H:%M:%S.%fZ")
