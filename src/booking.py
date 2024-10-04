@@ -4,8 +4,7 @@ import requests
 import time
 
 from auth import auth, terminate_session
-from booking_tag_id import (BookingTagId, BOOKING_TAG_ID_BOOKING_WINDOW_MAP,
-    compute_hall_slot_booking_window)
+from booking_tag_id import BookingTagId, BOOKING_TAG_ID_BOOKING_WINDOW_MAP
 from time_slot_manip import date_and_hour_to_time_slot_str, seconds_diff
 
 
@@ -137,22 +136,17 @@ def slot_is_bookable(slot, booking_tag_id=BookingTagId.GYM):
     """
     seconds_until_slot = seconds_diff(datetime.utcnow(), slot["startDate"])
 
-    booking_window = get_booking_window(booking_tag_id, slot)
+    booking_window = get_booking_window(booking_tag_id)
     slot_within_booking_window = seconds_until_slot < booking_window
 
     return slot["isAvailable"] and slot_within_booking_window
 
 
-def get_booking_window(booking_tag_id=BookingTagId.GYM, slot=None):
+def get_booking_window(booking_tag_id=BookingTagId.GYM):
     """
     Returns the number of seconds that X allows between the booking time and
     start time for a time slot of the given `booking_tag_id`.
     """
-    # Some categories can only be booked 3 days ahead of time, starting from
-    # 00:00 rather than from the exact time of each individual slot
-    if booking_tag_id.is_hall_category() and slot is not None:
-        return compute_hall_slot_booking_window(slot["startDate"])
-
     # Assume an unreasonably large window by default for unknown categories
     return BOOKING_TAG_ID_BOOKING_WINDOW_MAP.get(booking_tag_id, 31536000)
 

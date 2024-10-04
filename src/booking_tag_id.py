@@ -1,9 +1,6 @@
-from datetime import datetime, timedelta, timezone
 from enum import Enum
 
 from fuzzywuzzy import process
-
-from time_slot_manip import utc_seconds_difference
 
 
 class BookingTagId(Enum):
@@ -58,19 +55,9 @@ BOOKING_TAG_ID_STRING_MAP = {
 # present in the map, it either has an unknown value or has to be computed at
 # runtime.
 BOOKING_TAG_ID_BOOKING_WINDOW_MAP = {
-    BookingTagId.GYM: 604800  # 7 days
+    BookingTagId.BEACH_VOLLEYBALL_COURT: 259200,  # 3 days
+    BookingTagId.GYM: 604800,  # 7 days,
+    BookingTagId.HALL_X1: 259200,
+    BookingTagId.HALL_X2: 259200,
+    BookingTagId.HALL_X3: 259200
 }
-
-
-def compute_hall_slot_booking_window(start_str):
-    """
-    Computes the booking windows for hall-like booking tag IDs, which is equal
-    to three days plus the hour at which the time slot commences.
-
-    TODO: Check whether this window assumption is correct
-
-    Arguments:
-        `start_str`: A timestamp string representing a slot's start time (UTC).
-    """
-    start = datetime.strptime(start_str, "%Y-%m-%dT%H:%M:%S.%fZ")
-    return 259200 + (start.hour)*3600 + utc_seconds_difference()
