@@ -58,13 +58,17 @@ Continuously attempt to book the fitness time slot at 16:00 on 12 March 2021:
 ```bash
 xbook.py 2021-03-12 16
 ```
+Continuously attempt to book the fitness time slot at 09:00 on 26 October 2021 without having to wait for a prompt to enter your password:
+```bash
+xbook.py 2021-10-26 9 --password iceddecafoatmilklatteonsundayaftergym
+```
 Continuously attempt to book hall X3B at 20:00 on 10 January 2022:
 ```bash
-xbook.py 2022-01-30 20 --booking-category x3b
+xbook.py 2022-01-10 20 --booking-category x3b
 ```
 Continuously attempt to book beach volleyball court 1 at 19:00 on 30 July 2024:
 ```bash
-xbook.py 2024-01-30 19 --booking-category beach --court 1
+xbook.py 2024-07-30 19 --booking-category beach --court 1
 ```
 
 # Configuration
