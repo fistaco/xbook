@@ -56,7 +56,7 @@ def tud_auth(netid, passw):
     # Obtain the second SAML response
     url = "https://engine.surfconext.nl/authentication/sp/consume-assertion"
     r3 = s.post(url, data={"SAMLResponse": saml_resp})
-    saml_resp = extract_saml_response(r3.text, end_char='"/>')
+    saml_resp = re.search(r'value=(.*?)">', r3.text).group(1)
 
     # Obtain session token after login
     saml_url = "https://connect.surfconext.nl/login/saml2/sso/oidcng"
